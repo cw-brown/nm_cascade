@@ -1,0 +1,9 @@
+contrat = [0.5, 1.5, 2, 1.4, 0.5];
+inp = flip(contrat);
+for ii = 1:length(contrat)
+    if ii == 1
+        interm = 1/inp(ii);
+    else
+        interm = inp(ii) + interm;
+    end
+end
