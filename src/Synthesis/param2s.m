@@ -1,16 +1,20 @@
-function s = param2s(n, freqs, order)
-    % Turn a vector of parameters N into an s-parameter matrix using
-    % impedance synthesis
-    s = tf('s');
-    % z11 = (n(1)*s^3 + n(2)*s) / (n(3)*s^2 + n(4));
-    % z22 = (n(5)*s^3 + n(6)*s) / (n(7)*s^2 + n(8));
-    % z12 = (n(9)*s^3 + n(10)*s) / (n(11)*s^2 + n(12));
-    z11 = cauer1(n(1:order) * s);
-    z22 = cauer1(n(order+1:order*2) * s);
-    z12 = cauer1(n(order*2+1:order*3) * s);
-    z(1, 1, :) = freqresp(z11, freqs);
-    z(2, 2, :) = freqresp(z22, freqs);
-    z(1, 2, :) = freqresp(z12, freqs);
-    z(2, 1, :) = z(1, 2, :);
-    s = z2s(z);
+function s = param2s(n, sz, freqs, terms)
+    persistent stf;
+    stf = tf('s');
+    ntran = (sz^2+sz)/2;
+    [a, b] = meshgrid(1:sz, 1:sz);
+    a = triu(a); b = triu(b);
+    a = a(a ~= 0); b = b(b ~= 0);
+    st = 1;
+    g = tf(zeros(sz, sz));
+    for ii = 1:ntran
+        tran = 0;
+        for tt = 1:terms
+            tran = tran + (n(st)+1j*n(st+1))/(stf+n(st+2)+1j*n(st+3));
+            st = st+4;
+        end
+        g(a(ii), b(ii)) = tran;
+        g(b(ii), a(ii)) = g(a(ii), b(ii));
+    end
+    s = freqresp(g, freqs);
 end

@@ -1,4 +1,4 @@
-function f = synthesisoptim(x, freqs, errfunc, order)
-    s = param2s(x, freqs, order); s = s(1, 2, :);
+function f = synthesisoptim(x, sz, freqs, errfunc, terms)
+    s = param2s(x, sz, freqs, terms); s = s(1, 2, :);
     f = sqrt(mean((db(s(:)') - db(errfunc(:)')).^2));
 end
