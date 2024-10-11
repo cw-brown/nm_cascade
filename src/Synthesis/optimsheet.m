@@ -1,29 +1,35 @@
 %% Optimization Sheet
-close all;
-sz = 2;
-terms = 8;
-nvar = 3*4*terms;
-freqs = logspace(8, 11, 50);
-filt = rffilter("FilterOrder", 3, "FilterType", "Butterworth", "StopbandFrequency", 1e9, "PassbandFrequency", 2.5e9);
-sfilt = sparameters(filt, freqs);
-err = sfilt.Parameters(1, 2, :);
+close all; clear; clc;
+sz = [2, 2, 1, 2];
+ports = fpg(sz); ports = ports(2:end-1);
+nvar = 11 * sum((ports.^2+ports)/2);
+freqs = logspace(0, 5, 250);
 
+[z,p,k] = butter(9, 2e2, "s");
+filt = zpk(z, p, k);
+err = freqresp(filt, freqs);
 
-lb = -20*ones(1, nvar);
-ub = 20*ones(1, nvar);
 stx = rand(1, nvar);
 
 %%
-options = optimoptions("fmincon", "Display", "iter", "MaxFunctionEvaluations", 5e4, "UseParallel", true);
-% options = optimoptions("patternsearch", "Display", "iter", "UseParallel", true, "PlotFcn", "psplotbestf");
-obj = @(x)synthesisoptim(x, sz, freqs, err, terms);
-result = fmincon(obj, stx, [], [], [], [], [], [], [], options);
-% result = patternsearch(obj, stx, [], [], [], [], [], [], [], options);
+obj = @(x)synthesisoptim(x, sz, freqs, err);
+
+ub = 1e12*ones(1, nvar);
+lb = ones(1, nvar);
+
+goal = [0, 1];
+weight = abs(goal);
+options = optimoptions("fgoalattain", "Display", "iter", "UseParallel", true, "PlotFcn", {"optimplotx", 'optimplotfval'});
+result = fgoalattain(obj, stx, goal, weight, [], [], [], [], lb, ub, [], options);
+
 %%
-s = param2s(result, 2, freqs, terms);
-s = sparameters(s, freqs);
-rfplot(s, 1, 2);
+figure;
+H = param2s(result, sz, freqs);
+H = sparameters(H, freqs);
+G = sparameters(err, freqs);
+rfplot(H);
 hold on;
-rfplot(sfilt, 1, 2);
+grid on;
 xscale("log");
-legend("Synthesis dB({S_1_2})", "Target dB({S_1_2})");
+rfplot(G);
+

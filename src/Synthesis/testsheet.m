@@ -1,22 +1,70 @@
-n = 1e-3*rand(1, 3*8);
-sz = 2;
-freqs = logspace(1, 6, 50);
-ntran = (sz^2+sz)/2;
-[a, b] = meshgrid(1:sz, 1:sz);
-a = triu(a); b = triu(b);
-a = a(a ~= 0); b = b(b ~= 0);
-z = zeros(sz, sz, length(freqs));
-st = 1;
-for ii = 1:ntran
-    denominator = [n(st), 0, n(st+1), 0, n(st+2), 0, n(st+3)];
-    numerator = [n(st+4), 0, n(st+5), 0, n(st+6), 0, n(st+7), 0];
-    g(a(ii), b(ii)) = tf(numerator, denominator);
-    g(b(ii), a(ii)) = g(a(ii), b(ii));
-    st = st + 8;
-end
-y = 1/sqrt(50) * eye(sz);
-S = (y*g*y+eye(sz))\(y*g*y-eye(sz));
-S = freqresp(S, freqs);
-S = sparameters(S, freqs);
-rfplot(S);
+%% Optimization Sheet
+% 1. Make N networks that are 2x2 transfer functions
+% 2. Series connect the systems
+% 3. Turn to S matrix
+close all; clear; clc;
+freqs = logspace(3, 6, 150);
+N = 2;
+nvar = 13*N;
+
+%%
+stx = rand(1, nvar);
+
+[z,p,k] = butter(3, 2e7, "s");
+filt = zpk(z, p, k);
+[err1, err2] = bode(filt, freqs);
+
+obj = @(x)testopt(x, N, freqs, err1, err2);
+% 
+% goal = [0.0001, 0.0001];
+% weight = abs(goal);
+% options = optimoptions("fgoalattain", "PlotFcn", "optimplotfval", "UseParallel", true, "EqualityGoalCount", 2);
+% result = fgoalattain(obj, stx, goal, weight, [], [], [], [], [], [], [], options);
+
+result = fmincon(obj, stx);
+
+%%
+figure;
+H = seriescon(result, N);
+bode(H);
+hold on;
+grid on;
 xscale("log");
+bode(filt);
+legend("Synthesis", "Target");
+
+%% Functions
+function g = maketransfer(n)
+    poles = [-abs(n(1))+1j*n(2), -abs(n(1))-1j*n(2), ...
+             -abs(n(3))+1j*n(4), -abs(n(3))-1j*n(4), ...
+             -abs(n(5))+1j*n(6), -abs(n(5))-1j*n(6), ...
+             -abs(n(7)), -abs(n(8))];
+    zeros = [n(9), n(10), n(11), n(12)];
+    gain = n(13);
+    g = zpk(zeros, poles, gain);
+end
+
+function f = testopt(x, N, freqs, err1, err2)
+    st = 1;
+    seriessys = tf(1);
+    for ii = 1:N
+        H = maketransfer(x(st:st+11));
+        st = st + 13;
+        seriessys = series(seriessys, H);
+    end
+    [mag, phase] = bode(seriessys, freqs);
+    mag = 20*log10(mag);
+    err1 = 20*log10(err1);
+    f(1) = sqrt(mean((mag(:)' - err1(:)').^2));
+    % f(2) = sqrt(mean((phase(:)' - err2(:)').^2));
+end
+
+function s = seriescon(x, N)
+    st = 1;
+    s = tf(1);
+    for ii = 1:N
+        H = maketransfer(x(st:st+12));
+        st = st + 13;
+        s = series(s, H);
+    end
+end

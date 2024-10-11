@@ -1,20 +1,13 @@
-function s = param2s(n, sz, freqs, terms)
-    persistent stf;
-    stf = tf('s');
-    ntran = (sz^2+sz)/2;
-    [a, b] = meshgrid(1:sz, 1:sz);
-    a = triu(a); b = triu(b);
-    a = a(a ~= 0); b = b(b ~= 0);
+function s = param2s(x, sz, freqs)
+    ports = fpg(sz); ports = ports(2:end-1);
+    s_params = cell(1, length(ports));
     st = 1;
-    g = tf(zeros(sz, sz));
-    for ii = 1:ntran
-        tran = 0;
-        for tt = 1:terms
-            tran = tran + (n(st)+1j*n(st+1))/(stf+n(st+2)+1j*n(st+3));
-            st = st+4;
-        end
-        g(a(ii), b(ii)) = tran;
-        g(b(ii), a(ii)) = g(a(ii), b(ii));
+    for ii = 1:length(ports)
+        N = ports(ii);
+        nvar = 11 * (N^2+N)/2;
+        H = reciprocalN(x(st:st+nvar-1), N);
+        st = st + nvar;
+        s_params{ii} = freqresp(H, freqs);
     end
-    s = freqresp(g, freqs);
+    s = l2casc(s_params, freqs, sz); s = s(1, 2, :);
 end
