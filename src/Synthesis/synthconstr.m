@@ -1,13 +1,12 @@
-function f = synthobj(x, sz, freqs)
+function [c, ceq] = synthconstr(x, sz)
     networks = fpg(sz);
-    s_param = cell(1, length(networks));
+    c = zeros(length(networks), 1);
     st = 1;
     for ii = 1:length(networks)
         nvar = 13*(networks(ii)^2+networks(ii))/2;
         g = mimotm(x(st:st+nvar-1), networks(ii));
-        s_param{ii} = freqresp(g, freqs);
         st = st + nvar;
+        c(ii) = norm(g) - 1;
     end
-    s = l2casc(s_param, freqs, sz); s = s(1, 2, :);
-    f = db(s(:)');
+    ceq = [];
 end
