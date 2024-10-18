@@ -1,7 +1,7 @@
 function g = mimotm(x, sz)
     nt = (sz^2 + sz)/2;
     g = tf(1, 1);
-    nf = 8;
+    nf = 13;
     i = meshgrid(1:sz, 1:sz);
     ip = triu(i); ig = triu(i');
     ip = nonzeros(ip); ig = nonzeros(ig);

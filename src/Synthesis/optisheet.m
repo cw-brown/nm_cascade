@@ -10,7 +10,7 @@ comp = zpk(z, p, k);
 h = frd(comp, freqs);
 
 %%
-sz = [2 2 1 2];
+sz = [2 2 1 4];
 networks = fpg(sz);
 nvar = 13*sum((networks.^2+networks)/2);
 x = rand(1, nvar);
@@ -26,8 +26,7 @@ ub = 1e2*ones(1, nvar);
 
 options = optimoptions("lsqcurvefit", "Display", "final-detailed", "PlotFcn", {"optimplotfval", "optimplotx"}, "UseParallel", true);
 options.MaxFunctionEvaluations = 2.5e4;
-options.Algorithm = "interior-point";
-[result, fval] = lsqcurvefit(obj, x, freqs, ydata, lb, ub, [], [], [], [], constr, options);
+[result, fval] = lsqcurvefit(obj, x, freqs, ydata, [], [], [], [], [], [], [], options);
 
 %%
 s_param = cell(1, length(networks));
