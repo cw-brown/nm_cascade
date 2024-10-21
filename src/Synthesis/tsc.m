@@ -1,5 +1,11 @@
 function H = tsc(G, sz)
     % Math based on reference from "Computer-Aided Design of Microwave Circuits" by K.C. Gupta
+    
+    arguments 
+        G cell
+        sz (1, 4) uint16 {mustBeNonnegative, mustBeVector}
+    end
+
     ports = fpg(sz);
     gamma = topology(sz);
     c_1 = zeros(sum(ports)+2, 1); c_1(1) = 1;
