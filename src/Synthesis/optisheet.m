@@ -1,19 +1,20 @@
 %% 1x2 Test
 clear; clc; close all;
 
-sz = [1 2 1 2];
+sz = [2 2 1 4];
 networks = fpg(sz);
-nvar = 6*sum(networks.^2+networks)/2;
+nvar = 7*sum(networks.^2+networks)/2;
 x = rand(1, nvar);
 
 freqmin = 0;
-freqmax = 1e9;
-freqs = linspace(freqmin, freqmax, nvar^2/8) / freqmax;
+freqmax = 1e4;
+freqs = linspace(freqmin, freqmax, nvar) / freqmax;
 
 % [z, p, k] = butter(3, 2.5e3/freqmax, 's');
 % filt = zpk(z, p, k);
 % filt = rss(7);
-filt = tf([1 1], [1 2]);
+% filt = tf([1 1], [1 2]);
+filt = zpk([-0.2+.1j, -0.2-.1j], [-.6+2j, -.6-2j, -0.6], 0.85);
 resp = freqresp(filt, freqs);
 err = db(resp(:)');
 
@@ -21,12 +22,10 @@ err = db(resp(:)');
 obj = @(x, xdata)synthobj(x, sz, xdata);
 constr = @(x)synthconstr(x, sz);
 
-lb = -ones(1, nvar);
-ub = ones(1, nvar);
+lb = -1e2*ones(1, nvar);
+ub = 1e2*ones(1, nvar);
 options = optimoptions("lsqcurvefit", "Display", "iter-detailed", "PlotFcn", {'optimplotx', 'optimplotfval'}, 'UseParallel', true);
 options.MaxFunctionEvaluations = 2.5e4;
-options.ConstraintTolerance = 1e-7;
-options.Algorithm = "interior-point";
 result = lsqcurvefit(obj, x, freqs, err, lb, ub, [], [], [], [], constr, options);
 
 %%
@@ -45,8 +44,9 @@ for ii = 1:length(H)
     figure;
     rfplot(M);
     xscale("log");
+    [nu, ny] = iosize(H{ii});
+    Q = [eye(nu), zeros(nu); zeros(ny), -eye(ny)];
+    G = [H{ii}; eye(nu)];
+    [W1, W2] = getQData(Q);
+    norm((W1'*G)/(W2'*G), Inf)
 end
-
-Q = [0 -1; -1 0];
-[W1, W2] = getQData(Q);
-pidx = norm((W1'*[G(1,2);1])/(W2'*[G(1,2);1]), Inf);
