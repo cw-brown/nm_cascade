@@ -1,28 +1,17 @@
-function [c, ceq] = synthconstr(x, sz)
+function [c, ceq] = synthconstr(x, sz, freqs)
     G = casctran(x, sz);
     n = length(G);
+    c = zeros(1, n);
     ceq = [];
-    c = zeros(1, 2*n);
     for ii = 1:n
         g = G{ii};
         [nu, ny] = iosize(g);
         H = [g; eye(nu)];
-        %% Passivity
-        Q = [zeros(nu), -eye(nu); -eye(ny), zeros(ny)];
-        [W1, W2] = getQData(Q);
-        c((ii-1)*n+1) = norm((W1'*H)/(W2'*H), Inf) - (1-eps^2);
-        %% Gain<1
-        Q = [eye(nu), zeros(nu); zeros(ny), -(0.95)^2*eye(ny)];
-        [W1, W2] = getQData(Q);
-        c((ii-1)*n+2) = norm((W1'*H)/(W2'*H), Inf) - (1-eps^2);
+        Q = [eye(nu), zeros(nu); zeros(ny), -eye(ny)];
+        c(ii) = getSectorIndex(H, Q); % Gain restraint
     end
-
-    function [W1, W2] = getQData(Q)
-        [U, D] = schur(Q);
-        D = diag(D);
-        L1 = find(D>=0);
-        L2 = find(D<0);
-        W1 = lrscale(U(:, L1), [], sqrt(D(L1)));
-        W2 = lrscale(U(:, L2), [], sqrt(D(L2)));
-    end
+    H = tsc(G, sz);
+    Z = sqrt(50)*eye(2)*(eye(2)+H)/(eye(2)-H)*sqrt(50)*eye(2);
+    F = freqresp(Z, freqs);
+    % c = [c, -gradient(imag(reshape(F(1, 1, :), 1, [])), freqs(2)-freqs(1)), -gradient(imag(reshape(F(2, 2, :), 1, [])), freqs(2)-freqs(1))];
 end
