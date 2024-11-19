@@ -67,7 +67,7 @@ for ii = 1:length(H)
     Q = [zeros(nu), -eye(nu); -eye(ny), zeros(ny)];
     [W1, W2] = getQData(Q);
     b = norm((W1'*G)/(W2'*G), Inf);
-    [a, b]
+    disp([a, b]);
 end
 
 %% Impedance transform
