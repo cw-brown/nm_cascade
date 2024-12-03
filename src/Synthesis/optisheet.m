@@ -1,7 +1,7 @@
 %% 1x2 Test
 clear; clc; close all;
 
-sz = [2 2 1 2];
+sz = [2 1 1 2];
 networks = fpg(sz);
 nvar = 7*sum(networks.^2+networks)/2;
 stx = rand(1, nvar);
