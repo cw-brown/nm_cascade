@@ -1,9 +1,7 @@
 %% 1x2 Test
 clear; clc; close all;
 
-rng(12345);
-
-sz = [2 1 1 2];
+sz = [2 2 1 2];
 networks = fpg(sz);
 nvar = 7*sum(networks.^2+networks)/2;
 stx = rand(1, nvar);
@@ -41,34 +39,26 @@ hold on;
 xscale("log");
 rfplot(sparameters(resp, freqs));
 
-Z = sqrt(50)*eye(2)*(eye(2)+G)/(eye(2)-G)*eye(2)*sqrt(50);
-F = freqresp(Z, freqs);
-figure;
-subplot(1, 2, 1);
-plot(freqs, gradient(imag(reshape(F(1,1,:), 1, [])), freqs(2)-freqs(1)));
-subplot(1, 2, 2);
-plot(freqs, gradient(imag(reshape(F(2,2,:), 1, [])), freqs(2)-freqs(1)));
-
 %%
-for ii = 1:length(H)
-    M = sparameters(freqresp(H{ii}, freqs), freqs);
-    figure;
-    rfplot(M);
-    xscale("log");
-end
+% for ii = 1:length(H)
+%     M = sparameters(freqresp(H{ii}, freqs), freqs);
+%     figure;
+%     rfplot(M);
+%     xscale("log");
+% end
 
 %% Gain and Passivity
-for ii = 1:length(H)
-    [nu, ny] = iosize(H{ii});
-    Q = [eye(nu), zeros(nu); zeros(ny), -eye(ny)];
-    G = [H{ii}; eye(nu)];
-    [W1, W2] = getQData(Q);
-    a = norm((W1'*G)/(W2'*G), Inf);
-    Q = [zeros(nu), -eye(nu); -eye(ny), zeros(ny)];
-    [W1, W2] = getQData(Q);
-    b = norm((W1'*G)/(W2'*G), Inf);
-    disp([a, b]);
-end
+% for ii = 1:length(H)
+%     [nu, ny] = iosize(H{ii});
+%     Q = [eye(nu), zeros(nu); zeros(ny), -eye(ny)];
+%     G = [H{ii}; eye(nu)];
+%     [W1, W2] = getQData(Q);
+%     a = norm((W1'*G)/(W2'*G), Inf);
+%     Q = [zeros(nu), -eye(nu); -eye(ny), zeros(ny)];
+%     [W1, W2] = getQData(Q);
+%     b = norm((W1'*G)/(W2'*G), Inf);
+%     disp([a, b]);
+% end
 
 %% Impedance transform
 Z = cell(1, length(H));

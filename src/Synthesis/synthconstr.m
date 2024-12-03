@@ -2,7 +2,6 @@ function [c, ceq] = synthconstr(x, sz, freqs)
     G = casctran(x, sz);
     n = length(G);
     c = zeros(1, n);
-    ceq = [];
     for ii = 1:n
         g = G{ii};
         [nu, ny] = iosize(g);
@@ -10,8 +9,18 @@ function [c, ceq] = synthconstr(x, sz, freqs)
         Q = [eye(nu), zeros(nu); zeros(ny), -eye(ny)];
         c(ii) = getSectorIndex(H, Q); % Gain restraint
     end
-    H = tsc(G, sz);
-    Z = sqrt(50)*eye(2)*(eye(2)+H)/(eye(2)-H)*sqrt(50)*eye(2);
-    F = freqresp(Z, freqs);
-    % c = [c, -gradient(imag(reshape(F(1, 1, :), 1, [])), freqs(2)-freqs(1)), -gradient(imag(reshape(F(2, 2, :), 1, [])), freqs(2)-freqs(1))];
+
+    ports = fpg(sz);
+    ceq = zeros(1, sum(ports));
+    st = n+1;
+    for ii = 1:n
+        for jj = 1:ports(ii)
+            g = G{ii};
+            S = g(jj, jj);
+            X = reshape(imag(freqresp(S, freqs)), 1, []);
+            divX = gradient(X);
+            c(st) = all(divX >= 0) - 1;
+            st = st + 1;
+        end
+    end
 end
