@@ -1,4 +1,3 @@
-%% 1x2 Test
 clear; clc; close all;
 
 sz = [2 1 1 2];
@@ -10,18 +9,21 @@ freqmin = 0;
 freqmax = 1e9;
 freqs = linspace(freqmin, freqmax, nvar)/freqmax;
 
-% [z, p, k] = butter(3, 2.5e3/freqmax, 's');
-% filt = zpk(z, p, k);
-% filt = rss(7);
-% filt = tf([1 1], [1 2]);
-filt = zpk([-0.2+.1j, -0.2-.1j], [-.6+2j, -.6-2j, -0.6], 0.85);
-% filt = tf(0.2);
+filt = rss(12);
+Q = [1, 0; 0, -1];
+H = [filt; 1];
+e = getSectorIndex(H, Q);
+while e > 1    
+    filt = rss(12);
+    H = [filt; 1];
+    e = getSectorIndex(H, Q);
+end
 resp = freqresp(filt, freqs);
 err = db(resp(:)');
 
 %%
 obj = @(x, xdata)synthobj(x, sz, xdata);
-constr = @(x)synthconstr(x, sz, freqs);
+constr = @(x)synthconstr(x, sz);
 
 lb = -1e2*ones(1, nvar);
 ub = 1e2*ones(1, nvar);
@@ -38,43 +40,3 @@ rfplot(J, 1, 2);
 hold on;
 xscale("log");
 rfplot(sparameters(resp, freqs));
-
-%%
-% for ii = 1:length(H)
-%     M = sparameters(freqresp(H{ii}, freqs), freqs);
-%     figure;
-%     rfplot(M);
-%     xscale("log");
-% end
-
-%% Gain and Passivity
-% for ii = 1:length(H)
-%     [nu, ny] = iosize(H{ii});
-%     Q = [eye(nu), zeros(nu); zeros(ny), -eye(ny)];
-%     G = [H{ii}; eye(nu)];
-%     [W1, W2] = getQData(Q);
-%     a = norm((W1'*G)/(W2'*G), Inf);
-%     Q = [zeros(nu), -eye(nu); -eye(ny), zeros(ny)];
-%     [W1, W2] = getQData(Q);
-%     b = norm((W1'*G)/(W2'*G), Inf);
-%     disp([a, b]);
-% end
-
-%% Impedance transform
-Z = cell(1, length(H));
-for ii = 1:length(Z)
-    figure;
-    g = H{ii};
-    [nu, ~] = iosize(g);
-    I = eye(nu);
-    Z{ii} = sqrt(50)*I*(I+g)/(I-g)*sqrt(50)*I;
-    F = frd(Z{ii}, freqs);
-    refplot = reshape(1:nu^2, nu, nu);
-    for jj = 1:nu
-    for kk = 1:nu
-        subplot(nu, nu, refplot(jj, kk));
-        D = F.ResponseData(jj, kk, :);
-        plot(freqs, gradient(imag(D(:)), freqs(2)-freqs(1)));
-    end
-    end
-end
