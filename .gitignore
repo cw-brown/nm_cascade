@@ -1,5 +1,7 @@
 *.son
+*.s1p
 *.s2p
 *.s3p
 *.s4p
+*.asv
 src/gridmake/sondata/
