@@ -2,7 +2,7 @@ close all; clear; clc
 %% Multi-layer black box and geometry optimizer
 sz = [1, 3, 1, 3];
 networks = fpg(sz);
-nvar = 4*sum(networks.^2+networks)/2;
+nvar = 5*sum(networks.^2+networks)/2;
 
 freqs = logspace(-2, 2, 100);
 
@@ -25,7 +25,7 @@ legend('S_1_1', 'S_1_2', 'S_2_1', 'S_2_2');
 
 option = 'db';
 
-obj = @(x, data) synobj(x, sz, data, option);
+obj = @(x) synobj(x, sz, 1, option, f);
 constr = @(x) synthconstr(x, sz);
 
 switch option
@@ -40,9 +40,15 @@ end
 stx = rand(1, nvar);
 lb = zeros(1, nvar);
 ub = 1e2*ones(1, nvar);
-options = optimoptions("lsqcurvefit", "Display", "final", "PlotFcn", {'optimplotx', 'optimplotfval', 'optimplotfirstorderopt'}, "UseParallel", true);
-options.MaxFunctionEvaluations = 5e4;
-[result, res, fval, flag, output] = lsqcurvefit(obj, stx, freqs, err, lb, ub, [], [], [], [], constr, options);
+% options = optimoptions("lsqcurvefit", "Display", "final", "PlotFcn", {'optimplotx', 'optimplotfval', 'optimplotfirstorderopt'}, "UseParallel", true);
+% options.MaxFunctionEvaluations = 5e4;
+% [result, res, fval, flag, output] = lsqcurvefit(obj, stx, freqs, err, lb, ub, [], [], [], [], constr, options);
+
+goal = zeros(1, 4);
+weight = 1e-3*ones(1, 4);
+
+options = optimoptions("fgoalattain", "Display", "iter", "PlotFcn", {'optimplotx', 'optimplotfval'});
+result = fgoalattain(obj, stx, goal, weight, [], [], [], [], lb, ub, constr, options);
 
 G = casctran(result, sz);
 H = tsc(G, sz);
@@ -72,13 +78,19 @@ for ii = 1:sz(1)*sz(2)
 end
 
 %%
-function f = synobj(x, sz, freqs, option)
+function f = synobj(x, sz, freqs, option, comp)
     G = casctran(x, sz);
     H = tsc(G, sz);
     F = frd(H, freqs, 'FrequencyUnit', 'Hz');
     switch option
         case 'db'
-            f = reshape(db(F.ResponseData), 1, []);
+            f = zeros(1, 4);
+            for ii = 1:4
+                [row, col] = ind2sub([2, 2], ii);
+                k = reshape(db(F.ResponseData(row, col, :)), 1, []);
+                g = reshape(db(comp.ResponseData(row, col, :)), 1, []);
+                f(ii) = sqrt(mean((k-g).^2));
+            end
         case 'phase'
         case 'dbphase'
         otherwise
