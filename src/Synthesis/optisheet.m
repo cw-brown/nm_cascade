@@ -5,9 +5,10 @@ networks = fpg(sz);
 nvar = 7*sum(networks.^2+networks)/2;
 stx = rand(1, nvar);
 
-freqmin = 0;
-freqmax = 1e9;
-freqs = linspace(freqmin, freqmax, nvar)/freqmax;
+% freqmin = 1e8;
+% freqmax = 1e9;
+% freqs = linspace(freqmin, freqmax, nvar);
+
 
 filt = rss(12);
 Q = [1, 0; 0, -1];
@@ -23,9 +24,9 @@ err = db(resp(:)');
 
 %%
 obj = @(x, xdata)synthobj(x, sz, xdata);
-constr = @(x)synthconstr(x, sz);
+constr = @(x)synthconstr(x, sz, freqs);
 
-lb = -1e2*ones(1, nvar);
+lb = zeros(1, nvar);
 ub = 1e2*ones(1, nvar);
 options = optimoptions("lsqcurvefit", "Display", "iter-detailed", "PlotFcn", {'optimplotx', 'optimplotfval', 'optimplotfirstorderopt', 'optimplotstepsize'}, 'UseParallel', true);
 options.MaxFunctionEvaluations = 2.5e4;
