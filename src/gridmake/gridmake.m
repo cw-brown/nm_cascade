@@ -22,6 +22,7 @@ function [s, p] = gridmake(pgridsize, config, n, name, openfile, sfreq, efreq, n
     p.changeLengthUnit('MM');
     p.replaceDielectricLayer(1, 'Air', 100);
     p.replaceDielectricLayer(2, 'FR-4', 1.6);
+    p.enableCurrentCalculations();
     p.defineNewMetalType('Copper', 0.02);
     p.changeFrequencyUnit('GHz');
     p.addLsweepFrequencySweep(sfreq, efreq, nfreq);

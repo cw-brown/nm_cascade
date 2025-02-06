@@ -3,7 +3,7 @@ function H = tsc(G, sz)
     
     arguments 
         G cell
-        sz (1, 4) uint16 {mustBeNonnegative, mustBeVector}
+        sz (1, 4) double {mustBeNonnegative, mustBeInteger}
     end
 
     port = fpg(sz);

@@ -1,54 +1,43 @@
 close all; clear; clc
 %% Multi-layer black box and geometry optimizer
-sz = [1, 3, 1, 3];
+sz = [2, 1, 1, 2];
 networks = fpg(sz);
-nvar = 5*sum(networks.^2+networks)/2;
-
-freqs = logspace(-2, 2, 100);
+nvar = 11*sum(networks.^2+networks)/2;
+freqs = logspace(-2, 2, 200);
 
 % Make a sample system to match against
-filt = rss(11, 2, 2);
-H = [filt; eye(2)];
-Q = [eye(2), zeros(2); zeros(2), -eye(2)];
-e = getSectorIndex(H, Q);
+filt = rss(5, 2, 2);
+e = getPeakGain(filt);
 while e > 1    
-    filt = rss(8, 2, 2);
-    H = [filt; eye(2)];
-    e = getSectorIndex(H, Q);
+    filt = rss(5, 2, 2);
+    e = getPeakGain(filt);
 end 
 filt(1, 2) = filt(2, 1);
-
 f = frd(filt, freqs, 'FrequencyUnit', 'Hz');
-plot(freqs, db(reshape(f.ResponseData(1,1,:),1,[])), freqs, db(reshape(f.ResponseData(1,2,:),1,[])), freqs, db(reshape(f.ResponseData(2,1,:),1,[])), freqs, db(reshape(f.ResponseData(2,2,:),1,[])));
-xscale('log'); title('Response Curve'); xlabel('Frequency (Hz)'); ylabel('Magnitude (dB)');
-legend('S_1_1', 'S_1_2', 'S_2_1', 'S_2_2');
 
 option = 'db';
-
-obj = @(x) synobj(x, sz, 1, option, f);
-constr = @(x) synthconstr(x, sz);
 
 switch option
     case 'db'
         err = db(reshape(f.ResponseData, 1, []));
-    case 'phase'
+        plot(freqs, db(reshape(f.ResponseData(1,1,:),1,[])), freqs, db(reshape(f.ResponseData(1,2,:),1,[])), freqs, db(reshape(f.ResponseData(2,1,:),1,[])), freqs, db(reshape(f.ResponseData(2,2,:),1,[])));
+        xscale('log'); title('Response Curve'); xlabel('Frequency (Hz)'); ylabel('Magnitude (dB)');
+        legend('dB(S_1_1)', 'dB(S_1_2)', 'dB(S_2_1)', 'dB(S_2_2)'); grid on;
+    case 'phase' 
     case 'dbphase'
     otherwise
         error('Invalid curve fitting option');
 end
 
+%%
+obj = @(x, xdata) synobj(x, sz, xdata, option);
+constr = @(x) synthconstr(x, sz);
 stx = rand(1, nvar);
-lb = zeros(1, nvar);
+lb = -1e2*ones(1, nvar);
 ub = 1e2*ones(1, nvar);
-% options = optimoptions("lsqcurvefit", "Display", "final", "PlotFcn", {'optimplotx', 'optimplotfval', 'optimplotfirstorderopt'}, "UseParallel", true);
-% options.MaxFunctionEvaluations = 5e4;
-% [result, res, fval, flag, output] = lsqcurvefit(obj, stx, freqs, err, lb, ub, [], [], [], [], constr, options);
-
-goal = zeros(1, 4);
-weight = 1e-3*ones(1, 4);
-
-options = optimoptions("fgoalattain", "Display", "iter", "PlotFcn", {'optimplotx', 'optimplotfval'});
-result = fgoalattain(obj, stx, goal, weight, [], [], [], [], lb, ub, constr, options);
+options = optimoptions("lsqcurvefit", "Display", "iter", "PlotFcn", {'optimplotx', 'optimplotfval', 'optimplotfirstorderopt'}, "UseParallel", true);
+options.MaxFunctionEvaluations = 5e4;
+[result, res, fval, flag, output] = lsqcurvefit(obj, stx, freqs, err, [], [], [], [], [], [], constr, options);
 
 G = casctran(result, sz);
 H = tsc(G, sz);
@@ -78,19 +67,13 @@ for ii = 1:sz(1)*sz(2)
 end
 
 %%
-function f = synobj(x, sz, freqs, option, comp)
+function f = synobj(x, sz, freqs, option)
     G = casctran(x, sz);
     H = tsc(G, sz);
     F = frd(H, freqs, 'FrequencyUnit', 'Hz');
     switch option
         case 'db'
-            f = zeros(1, 4);
-            for ii = 1:4
-                [row, col] = ind2sub([2, 2], ii);
-                k = reshape(db(F.ResponseData(row, col, :)), 1, []);
-                g = reshape(db(comp.ResponseData(row, col, :)), 1, []);
-                f(ii) = sqrt(mean((k-g).^2));
-            end
+            f = reshape(db(F.ResponseData), 1, []);
         case 'phase'
         case 'dbphase'
         otherwise
@@ -105,9 +88,10 @@ function [c, ceq] = synthconstr(x, sz)
     c = zeros(n, 1);
     for ii = 1:n
         g = G{ii};
-        [nu, ny] = iosize(g);
-        H = [g; eye(nu)];
-        Q = [eye(nu), zeros(nu); zeros(ny), -eye(ny)];
-        c(ii) = getSectorIndex(H, Q) - (1 - eps^2); % Gain restraint
+        % [nu, ny] = iosize(g);
+        % H = [g; eye(nu)];
+        % Q = [eye(nu), zeros(nu); zeros(ny), -eye(ny)];
+        % c(ii) = getSectorIndex(H, Q) - (1 - eps^2); % Gain restraint
+        c(ii) = getPeakGain(g) - (1-eps^2);
     end
 end
