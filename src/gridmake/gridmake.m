@@ -4,7 +4,7 @@ function [s, p] = gridmake(pgridsize, config, n, name, openfile, sfreq, efreq, n
 %                    the unique pixelated configuration
     arguments
         pgridsize (1, 1) {mustBeNonnegative, mustBeInteger}
-        config %{mustBeNumericOrLogical}
+        config 
         n (1, 1) {mustBeNonnegative, mustBeInteger}
         name {mustBeText}
         openfile {mustBeNumericOrLogical}

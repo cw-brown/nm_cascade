@@ -7,11 +7,7 @@ efreq = 4;
 nfreq = 100;
 
 % Determines how to fit the curves
-% 1: dB only
-% 2: dB and phase
-% 3: magnitude and phase
-% 4: phase only
-match = 1;
+match = 'db';
 
 % make a desired curve first for verification purposes
 s = gridmake(gridsize, stx, n, 'desired', 0, sfreq, efreq, nfreq);
@@ -26,10 +22,10 @@ ub = ones(1, gridsize^2);
 rx = zeros(1, gridsize^2);
 
 switch match
-    case {1, 4}
+    case {'db', 'phase'}
         goal = zeros(1, n^2);
         weight = 1*ones(1, n^2);
-    case {2, 3}
+    case 'dbphase'
         goal = 1*ones(1, 2*n^2);
         weight = ones(1, 2*n^2);
 end
