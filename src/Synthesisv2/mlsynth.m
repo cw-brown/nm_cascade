@@ -1,6 +1,6 @@
 %% Multi-layer black box and geometry optimizer
 close all; clear; clc;
-sz = [2, 2, 1, 2];
+sz = [1, 2, 1, 2];
 networks = fpg(sz);
 nvar = 8*sum(networks.^2+networks)/2;
 freqs = logspace(-2, 2, 75);
@@ -8,10 +8,10 @@ freqs = logspace(-2, 2, 75);
 % Make a sample system to match against
 filt = rss(7, 2, 2);
 e = getPeakGain(filt);
-while e > 1    
+while e > 1
     filt = rss(7, 2, 2);
     e = getPeakGain(filt);
-end 
+end
 filt(1, 2) = filt(2, 1);
 f = frd(filt, freqs, 'FrequencyUnit', 'Hz');
 
