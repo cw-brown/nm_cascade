@@ -4,6 +4,6 @@ function [c, ceq] = synconstr(x, sz)
     ceq = zeros(n, 1);
     c = zeros(n, 1);
     for ii = 1:n
-        c(ii) = getPeakGain(G{ii}) - (1-eps^2);
+        c(ii) = getPeakGain(G{ii}) - 1;
     end
 end
