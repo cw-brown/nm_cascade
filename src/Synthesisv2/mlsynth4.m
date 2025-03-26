@@ -82,7 +82,9 @@ lb = -ub;
 
 %% Optimization
 options = optimoptions("fmincon","Display","iter","UseParallel",true);
+tic
 solution = fmincon(obj,x,[],[],[],[],lb,ub,constr,options);
+toc
 
 % options = optimoptions("fmincon","Display","none","UseParallel",true,...
 %     "MaxFunctionEvaluations",4e3);
