@@ -2,12 +2,12 @@
 clear; clc; close all;
 rng(123456);
 
-sc = sparameters('bandreject.s2p');
+sc = sparameters('bandpass.s2p');
 nfreqs = length(sc.Frequencies);
 freqs = linspace(0,1,length(sc.Frequencies));
 sc.Frequencies = freqs;
 xlims = [0, 1];
-ylims = [-60, 10];
+ylims = [-70, 10];
 
 figure('Name','Cascaded Network'); subplot(2,2,1);
 plot(freqs, real(squeeze(sc.Parameters(1,1,:))), freqs, real(squeeze(sc.Parameters(1,2,:))), ...
@@ -33,12 +33,11 @@ err = [real(squeeze(sc.Parameters(1,1,:)))'...
        imag(squeeze(sc.Parameters(2,2,:)))'];
 
 % Automatically find the best grid size that can match the target
-eval = [2,16,20,28,40,44,52;...
-        16,36,64,84,112,132,160;...
-        20,64,100,140,184,220,260;...
-        28,84,140,196,252,308,364];
+eval = [2,16,20,28,40,44,52,64,68,76,88,92,100,112,116,124,136,140,148,160,...
+    164,172,184,188,196]; % for first order systems
+% eval = [4 28 40 56 76 88 104 124 136 152 172 184 200 220 232]; % second order
 fit = rational(sc);
-[m,n] = ind2sub([4,7],find(eval >= 2*fit.NumPoles,1));
+[m,n] = ind2sub([1,25],find(eval >= 2*fit.NumPoles,1));
 sz = [m,n,1,m*n];
 disp(['Automatic Grid Size: ' num2str(m) 'x' num2str(n)]);
 
@@ -55,27 +54,25 @@ ub = ub*ones(1, nvar);
 lb = -ub;
 
 %% fmincon optimization
-% options = optimoptions("fmincon","Display","iter","UseParallel",true,...
-%     "MaxFunctionEvaluations",Inf,"MaxIterations",Inf,...
-%     "PlotFcn",["optimplotx","optimplotfirstorderopt","optimplotfvalconstr"],...
-%     "OptimalityTolerance",1e-6);
-% tic
-% [result,fval,flag,output] = fmincon(obj,x,[],[],[],[],lb,ub,constr,options);
-% toc
-% if flag >= 0
-%     solution = result;
-% elseif ~isempty(output) && flag < 0
-%     solution = output.bestfeasible.x;
-% end
-
-%% lsqnonlin optimization
-options = optimoptions("lsqcurvefit","Display","iter","UseParallel",true,...
-    "MaxFunctionEvaluations",Inf,"MaxIterations",Inf,"PlotFcn",["optimplotx","optimplotfirstorderopt","optimplotfval"],...
-    "OptimalityTolerance",1e-6);
-objcurve = @(x,xdata)synthobjcurve(x,sz,xdata);
+options = optimoptions("fmincon","Display","iter","UseParallel",true,...
+    "MaxFunctionEvaluations",2.5e4,"MaxIterations",3e9,...
+    "PlotFcn",["optimplotx","optimplotfirstorderopt","optimplotfvalconstr"],...
+    "EnableFeasibilityMode",false,"SubproblemAlgorithm","factorization");
 tic
-[result,resnorm,res,flag,output] = lsqcurvefit(objcurve,x,freqs,err,lb,ub,[],[],[],[],constr,options);
-solution = result;
+[solution,fval,flag,output] = fmincon(obj,x,[],[],[],[],lb,ub,constr,options);
+toc
+
+%% Global solution finder (maybe?)
+% options = optimoptions("fmincon","UseParallel",true,"SubproblemAlgorithm","cg",...
+%     "EnableFeasibilityMode",true,"StepTolerance",1e-7,"MaxIterations",70,...
+%     "MaxFunctionEvaluations",8e3);
+% gs = GlobalSearch("Display","iter","PlotFcn","gsplotbestf",...
+%     "StartPointsToRun","bounds","FunctionTolerance",1e-4);
+% prob = createOptimProblem("fmincon","lb",lb,"ub",ub,"nonlcon",constr,...
+%     "objective",obj,"options",options,"x0",x);
+% solution = run(gs,prob);
+
+
 %% Plot output
 G = tranmake(solution, sz);
 H = tsc(G, sz);
@@ -129,6 +126,13 @@ sgtitle('Comparison of Magnitudes');
 %     title(['Network ' num2str(ii)]);
 % end
 % sgtitle('Grid Networks');
+
+for ii = 1:m*n
+    figure('Name',['Network ' num2str(ii)],'NumberTitle','off');
+    F = sparameters(freqresp(G{ii},freqs),freqs);
+    rfplot(F); title(['Network ' num2str(ii)]);
+    xlim(xlims); ylim(ylims);
+end
 
 %% Functions
 function gsys = tranmake(x, sz)
