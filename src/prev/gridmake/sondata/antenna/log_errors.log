@@ -1,0 +1,12 @@
+Run 1:  Tue Feb 04 16:11:16 2025.  .
+        Em version 18.54 (64-bit Windows) on DESKTOP-0JJSHOJ local.
+
+  Project:  C:\Users\caleb\Documents\UGResearch\nm_cascade\src\gridmake\antenna.son.
+
+    Begin electromagnetic simulation using frequency sweep:
+      Linear Start = 8, Stop = 10, Number = 150 GHZ, Adaptive
+
+    Post-Analysis information for em run 1:
+      Em errors detected: 0    Em warnings detected: 0.
+
+Em simulation completed Tue Feb 04 16:11:16 2025.

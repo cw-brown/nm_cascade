@@ -1,0 +1,91 @@
+Run 1:  Tue Feb 04 16:11:16 2025.  .
+        Em version 18.54 (64-bit Windows) on DESKTOP-0JJSHOJ local.
+
+  Project:  C:\Users\caleb\Documents\UGResearch\nm_cascade\src\gridmake\antenna.son.
+
+    Begin electromagnetic simulation using frequency sweep:
+      Linear Start = 8, Stop = 10, Number = 150 GHZ, Adaptive
+
+    Frequency:  8 GHZ
+      Subsectioning at 10 GHz with Eeff of 2.7.
+      Subsectioning time:  0.002 seconds.
+      De-embedding information for left box wall port(s):
+        Left SOC Electric Wall: 6.66205 mm length, 9 subsections, 1 MB.
+        Left SOC Magnetic Wall: 13.3241 mm length, 8 subsections, 1 MB.
+      Em license feature:  emhighperformance.
+
+      Circuit requires 41 subsections and 1 MB of memory.
+
+      Primary structure subsections by level and type:
+      Level 0:
+        Surface Staircase:  41
+
+      Process memory by type:
+        System matrix:            0 MB
+        Elemental subsections:
+          Primary structure:      0 MB
+          Left standard:          0 MB
+        Fourier transform:        0 MB
+        Waveguide mode:           0 MB
+        Adaptive band synthesis:  0 MB
+        Miscellaneous:            1 MB
+        TOTAL REQUIRED MEMORY:    1 MB
+
+      Amount of RAM installed on host computer:  16 GB
+      Number of logical processors:  8
+      Matrix solver:  internal 64-bit SSE with loss.
+      Simulation mode:  local machine.
+      Threads:  using 8 thread(s), 8 core(s) available.
+      Waveguide mode time:  0.013 seconds.
+      Fourier transform time:  0.009 seconds.
+      Coupling time:  0.006 seconds.
+      Loss time:  0.001 seconds.
+      Matrix fill time:  0.029 seconds.
+      Matrix solve time:  0.004 seconds.
+      De-embedding time for left box wall:
+        SOC Electric Wall Std: 0.021 seconds.
+        SOC Magnetic Wall Std: 0.008 seconds.
+        Total:                 0.029 seconds.
+      Frequency completed Tue Feb 04 16:11:16 2025.
+      Total time per frequency:  0.160 seconds.
+
+    Frequency:  10 GHZ
+      Waveguide mode time:  0.008 seconds.
+      Fourier transform time:  0.009 seconds.
+      Coupling time:  0.005 seconds.
+      Loss time:  0.001 seconds.
+      Matrix fill time:  0.023 seconds.
+      Matrix solve time:  0.009 seconds.
+      Frequency completed Tue Feb 04 16:11:16 2025.
+      Total time per frequency:  0.066 seconds.
+      ABS: SNR = 20.5051 dB (72.5739 dB Goal) for S1_1 at 9.16779 GHz.
+      ABS: Time = 0.026 seconds.
+
+    Frequency:  9.167785234899 GHZ
+      Waveguide mode time:  0.009 seconds.
+      Fourier transform time:  0.007 seconds.
+      Coupling time:  0.002 seconds.
+      Loss time:  0.001 seconds.
+      Matrix fill time:  0.019 seconds.
+      Matrix solve time:  0.004 seconds.
+      Frequency completed Tue Feb 04 16:11:16 2025.
+      Total time per frequency:  0.079 seconds.
+      ABS: SNR = 52.0322 dB (72.5739 dB Goal) for S1_1 at 9.67785 GHz.
+      ABS: Time = 0.023 seconds.
+
+    Frequency:  9.677852348993 GHZ
+      Waveguide mode time:  0.010 seconds.
+      Fourier transform time:  0.007 seconds.
+      Coupling time:  0.002 seconds.
+      Loss time:  0 seconds.
+      Matrix fill time:  0.020 seconds.
+      Matrix solve time:  0.004 seconds.
+      Frequency completed Tue Feb 04 16:11:16 2025.
+      Total time per frequency:  0.076 seconds.
+      ABS: SNR = 75.9795 dB (72.5739 dB Goal) for S1_1 at 8.41611 GHz.
+      ABS: Time = 0.023 seconds.
+
+    Post-Analysis information for em run 1:
+      Total time for 4 frequencies:  0.505 seconds.
+
+Em simulation completed Tue Feb 04 16:11:16 2025.

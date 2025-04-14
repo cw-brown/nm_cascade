@@ -1,0 +1,40 @@
+Run 1:  Thu Jan 16 17:21:16 2025.  .
+        Em version 18.54 (64-bit Windows) on DESKTOP-0JJSHOJ local.
+
+  Project:  C:\Users\caleb\Documents\UGResearch\nm_cascade\src\gridmake\test.son.
+
+    Begin electromagnetic simulation using frequency sweep:
+      Linear Start = 1, Stop = 4, Number = 100 GHZ, Adaptive
+
+    Frequency:  1 GHZ
+
+      De-embedded S-Parameters. 50 Ohm Port Terminations.
+      Magnitude/Angle. Touchstone Format. Matrix Order (line #1: S11 S12 S13 ...).
+      1.00000000 0.965984 -142.6
+      ! P1 F=1.0 Eeff=(3.11733 - j0.057554) Z0=(63.8835 + j0.531253)
+
+    Frequency:  4 GHZ
+      4.00000000 0.908724 109.00
+      ! P1 F=4.0 Eeff=(3.17383 - j0.0589634) Z0=(62.7599 + j0.558502)
+
+    Frequency:  2.484848484848 GHZ
+      2.48484848 0.953052 -10.12
+      ! P1 F=2.48484848 Eeff=(3.13725 - j0.0575488) Z0=(63.4348 + j0.548674)
+
+    Frequency:  3.393939393939 GHZ
+      3.39393939 0.902566 -141.1
+      ! P1 F=3.39393939 Eeff=(3.15755 - j0.0582989) Z0=(63.0426 + j0.555546)
+
+    Frequency:  1.575757575758 GHZ
+      1.57575758 0.966512 110.91
+      ! P1 F=1.57575758 Eeff=(3.12286 - j0.057271) Z0=(63.7454 + j0.53946)
+
+    Frequency:  1.242424242424 GHZ
+      1.24242424 0.963986 171.41
+      ! P1 F=1.24242424 Eeff=(3.11929 - j0.0573679) Z0=(63.8314 + j0.535128)
+
+    Frequency:  2.939393939394 GHZ
+      2.93939394 0.929345 -67.82
+      ! P1 F=2.93939394 Eeff=(3.14672 - j0.0578794) Z0=(63.2461 + j0.552408)
+
+Em simulation completed Thu Jan 16 17:21:16 2025.

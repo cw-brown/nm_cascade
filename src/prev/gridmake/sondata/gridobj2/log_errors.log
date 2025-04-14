@@ -1,0 +1,12 @@
+Run 1:  Thu Jan 23 14:43:14 2025.  .
+        Em version 18.54 (64-bit Windows) on DESKTOP-0JJSHOJ local.
+
+  Project:  C:\Users\caleb\Documents\UGResearch\nm_cascade\src\gridmake\gridobj2.son.
+
+    Begin electromagnetic simulation using frequency sweep:
+      Linear Start = 1, Stop = 4, Number = 100 GHZ, Adaptive
+
+    Post-Analysis information for em run 1:
+      Em errors detected: 0    Em warnings detected: 0.
+
+Em simulation completed Thu Jan 23 14:43:14 2025.

@@ -1,0 +1,20 @@
+Run 1:  Wed Feb 19 14:11:01 2025.  .
+        Em version 18.54 (64-bit Windows) on DESKTOP-0JJSHOJ local.
+
+  Project:  C:\Users\caleb\Documents\UGResearch\nm_cascade\src\gridmake\grid1.son.
+
+    Begin electromagnetic simulation using frequency sweep:
+      Linear Start = 1, Stop = 4, Number = 100 GHZ, Adaptive
+
+    Frequency:  1 GHZ
+
+      Sonnet Warning:
+      Adaptive band synthesis.
+      Primary structure has potential box resonances.
+      ABS may require large number of discrete frequencies for convergence.
+
+
+    Post-Analysis information for em run 1:
+      Em errors detected: 0    Em warnings detected: 1.
+
+Em simulation completed Wed Feb 19 14:11:02 2025.
